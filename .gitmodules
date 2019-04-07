@@ -1,0 +1,6 @@
+[submodule "php/interactiveticketing-php"]
+	path = php/interactiveticketing-php
+	url = git@github.com:interactiveticketing/interactiveticketing-php.git
+[submodule "java/interactiveticketing-java"]
+	path = java/interactiveticketing-java
+	url = git@github.com:interactiveticketing/interactiveticketing-java.git

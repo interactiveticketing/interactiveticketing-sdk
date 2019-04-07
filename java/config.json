@@ -1,0 +1,12 @@
+{
+    "sortParamsByRequiredFlag" : true,
+    "ensureUniqueParams": true,
+    "allowUnicodeIdentifiers": false,
+    "modelPackage": "Models",
+    "apiPackage": "Api",
+    "invokerPackage": "InteractiveTicketing",
+    "groupId": "com.interactiveticketing",
+    "artifactVersion": "1.0.0",
+    "artifactId": "interactiveticketing-java",
+    "hideGenerationTimestamp": true
+}

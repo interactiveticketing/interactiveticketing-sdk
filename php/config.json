@@ -1,0 +1,17 @@
+{
+    "sortParamsByRequiredFlag" : true,
+    "ensureUniqueParams": true,
+    "allowUnicodeIdentifiers": false,
+    "modelPackage": "Models",
+    "apiPackage": "Api",
+    "variableNamingConvention": "camelCase",
+    "invokerPackage": "InteractiveTicketing",
+    "packagePath": "interactiveticketing-php",
+    "srcBasePath": ".",
+    "composerVendorName": "interactiveticketing",
+    "gitUserId": "interactiveticketing",
+    "composerProjectName": "interactiveticketing-php",
+    "gitRepoId": "interactiveticketing-php",
+    "artifactVersion": "1.0.0",
+    "hideGenerationTimestamp": true
+  }
