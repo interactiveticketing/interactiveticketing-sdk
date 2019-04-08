@@ -4,3 +4,6 @@
 [submodule "java/interactiveticketing-java"]
 	path = java/interactiveticketing-java
 	url = git@github.com:interactiveticketing/interactiveticketing-java.git
+[submodule "csharp/interactiveticketing-csharp"]
+	path = csharp/interactiveticketing-csharp
+	url = git@github.com:interactiveticketing/interactiveticketing-csharp.git

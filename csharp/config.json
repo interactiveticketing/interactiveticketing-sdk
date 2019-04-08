@@ -1,0 +1,6 @@
+{
+    "packageName": "InteractiveTicketingSdk",
+    "packageVersion": "1.0.0",
+    "sourceFolder": "src",
+    "targetFramework": "v5.0"
+}
