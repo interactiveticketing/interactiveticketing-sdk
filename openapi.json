@@ -1,694 +1,927 @@
 {
-  "openapi" : "3.0.0",
-  "info" : {
-    "title" : "Developer API",
-    "description" : "Get your API Key from the [Dashboard](/dashboard/).<br/>Send all API requests with http header `X-API-Key: YOUR-API-KEY-HERE`.<br/>Base URL: `https://secure.interactiveticketing.com/developers/api/v1`<br/>Contact support@interactiveticketing.com for help.",
-    "version" : "v1",
-    "x-logo" : {
-      "url" : "/developers/api/v1/logo.svg"
-    }
-  },
-  "servers" : [ {
-    "url" : "https://secure.interactiveticketing.com/developers/api/v1"
-  } ],
-  "paths" : {
-    "/events" : {
-      "get" : {
-        "summary" : "All Events",
-        "description" : "Get list of all events with their `eventId` for your user key",
-        "responses" : {
-          "200" : {
-            "description" : "List of all events for your user key",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/Event"
-                  }
-                }
-              }
-            }
-          }
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Developer API",
+        "description": "Get your API Key from the [Dashboard](/dashboard/).<br/>Send all API requests with http header `X-API-Key: YOUR-API-KEY-HERE`.<br/>Base URL: `https://secure.interactiveticketing.com/developers/api/v2`<br/>Contact support@interactiveticketing.com for help.",
+        "version": "v2",
+        "x-logo": {
+            "url": "/developers/api/v2/logo.svg"
         }
-      }
     },
-    "/events/{eventId}" : {
-      "get" : {
-        "summary" : "Single Event",
-        "description" : "Get single event with `eventId`",
-        "parameters" : [ {
-          "name" : "eventId",
-          "in" : "path",
-          "description" : "ID of event to return",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Get single event",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Event"
-                }
-              }
-            }
-          }
+    "servers": [
+        {
+            "url": "https://secure.interactiveticketing.com/developers/api/v2"
         }
-      }
+    ],
+    "paths": {
+        "/events": {
+            "get": {
+                "summary": "List All Events",
+                "description": "Get list of all your events with their `eventId`.",
+                "responses": {
+                    "200": {
+                        "description": "List of all events for your user key",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Event"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{eventId}": {
+            "get": {
+                "summary": "Fetch Event by ID",
+                "description": "Get single event with `eventId`.",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "description": "ID of event to return",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get single event",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Event"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{eventId}/orders": {
+            "get": {
+                "summary": "Query Orders",
+                "description": "Returns paginated list of orders from the event. The `orderId` is not unique across all events. Use `fromOrderId` parameter to loop through orders if you are pulling down all data.",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "description": "ID of event to return",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "fromOrderId",
+                        "in": "query",
+                        "description": "Return orders with `orderId` greater than `fromOrderId`.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "description": "For pagination, return orders from `start` row index.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "For pagination, limit results to `limit` number of rows.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "testMode",
+                        "in": "query",
+                        "description": "Query test orders only.",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "orderType",
+                        "in": "query",
+                        "description": "To query only `web`, `pos`, or `kiosk` orders.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get a paginated result of orders",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedOrders"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{eventId}/orders/{orderId}": {
+            "get": {
+                "summary": "Fetch Order by ID",
+                "description": "Get single order with `eventId` and `orderId`.",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "description": "ID of event to return",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "description": "ID of order to return",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get single order",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Order"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/scan": {
+            "post": {
+                "summary": "Scan Ticket",
+                "description": "Scan a ticket or third party barcode.",
+                "requestBody": {
+                    "request": "UserArray",
+                    "description": "List of user object",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ScanRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Get a scan response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ScanResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     },
-    "/events/{eventId}/orders" : {
-      "get" : {
-        "summary" : "Search Orders",
-        "parameters" : [ {
-          "name" : "eventId",
-          "in" : "path",
-          "description" : "ID of event to return",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "integer"
-          }
-        }, {
-          "name" : "fromOrderId",
-          "in" : "query",
-          "description" : "Return orders with `orderId` greater than `fromOrderId`.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "integer"
-          }
-        }, {
-          "name" : "start",
-          "in" : "query",
-          "description" : "For pagination, return orders from `start` row index.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "integer"
-          }
-        }, {
-          "name" : "limit",
-          "in" : "query",
-          "description" : "For pagination, limit results to `limit` number of rows.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "integer"
-          }
-        }, {
-          "name" : "testMode",
-          "in" : "query",
-          "description" : "Query test orders only.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "boolean"
-          }
-        }, {
-          "name" : "orderType",
-          "in" : "query",
-          "description" : "To query only `web`, `pos`, or `kiosk` orders.",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Get a paginated result of orders",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PaginatedOrders"
-                }
-              }
+    "components": {
+        "schemas": {
+            "Client": {
+                "properties": {
+                    "clientId": {
+                        "description": "The organization ID",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "The organization name",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Department": {
+                "properties": {
+                    "departmentId": {
+                        "description": "The department ID",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "Name of the department",
+                        "type": "string"
+                    },
+                    "color": {
+                        "description": "Hex color assigned to department for display",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Device": {
+                "properties": {
+                    "deviceId": {
+                        "description": "The scanning device ID",
+                        "type": "integer"
+                    },
+                    "lastConnectTime": {
+                        "description": "The device last sync time iso-8601",
+                        "type": "string"
+                    },
+                    "ip": {
+                        "description": "The device last IP address",
+                        "type": "string"
+                    },
+                    "app": {
+                        "description": "The device app type",
+                        "type": "string"
+                    },
+                    "appVersion": {
+                        "description": "The device app version",
+                        "type": "string"
+                    },
+                    "_displayName": {
+                        "description": "The device label",
+                        "type": "string"
+                    },
+                    "_os": {
+                        "description": "The device OS",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Event": {
+                "properties": {
+                    "eventId": {
+                        "description": "The event ID",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "The event name",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "live | offline | completed",
+                        "type": "string"
+                    },
+                    "_client": {
+                        "$ref": "#/components/schemas/Client"
+                    },
+                    "_scanPoints": {
+                        "description": "Array of ScanPoint",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ScanPoint"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "OfflineTicket": {
+                "properties": {
+                    "offlineTicketId": {
+                        "description": "The ticket ID",
+                        "type": "integer"
+                    },
+                    "testTicket": {
+                        "description": "True if test mode",
+                        "type": "boolean"
+                    },
+                    "barcode": {
+                        "description": "The ticket barcode",
+                        "type": "string"
+                    },
+                    "name": {
+                        "description": "Name of ticket",
+                        "type": "string"
+                    },
+                    "price": {
+                        "description": "Purchase price for the ticket",
+                        "type": "string"
+                    },
+                    "details": {
+                        "description": "Details about the ticket",
+                        "type": "string"
+                    },
+                    "slotDate": {
+                        "description": "Applicable to timed ticketing",
+                        "type": "string"
+                    },
+                    "slotTime": {
+                        "description": "Applicable to timed ticketing",
+                        "type": "string"
+                    },
+                    "seatCustom1": {
+                        "description": "Applicable to reserved seating",
+                        "type": "string"
+                    },
+                    "seatCustom2": {
+                        "description": "Applicable to reserved seating",
+                        "type": "string"
+                    },
+                    "seatSection": {
+                        "description": "Applicable to reserved seating",
+                        "type": "string"
+                    },
+                    "seatRow": {
+                        "description": "Applicable to reserved seating",
+                        "type": "string"
+                    },
+                    "seatNumber": {
+                        "description": "Applicable to reserved seating",
+                        "type": "integer"
+                    },
+                    "canceled": {
+                        "description": "Canceled / Voided ticket",
+                        "type": "boolean"
+                    },
+                    "_scans": {
+                        "description": "Array of ticket scan activity",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Scan"
+                        }
+                    },
+                    "_scanPointConfig": {
+                        "$ref": "#/components/schemas/ScanPointConfig"
+                    }
+                },
+                "type": "object"
+            },
+            "Order": {
+                "properties": {
+                    "orderId": {
+                        "description": "The order ID",
+                        "type": "integer"
+                    },
+                    "dateTime": {
+                        "description": "The order time iso-8601",
+                        "type": "string"
+                    },
+                    "testOrder": {
+                        "description": "True indicates a test order",
+                        "type": "boolean"
+                    },
+                    "orderType": {
+                        "description": "web | pos | kiosk",
+                        "type": "string"
+                    },
+                    "firstName": {
+                        "description": "Customer first name",
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "description": "Customer last name",
+                        "type": "string"
+                    },
+                    "email": {
+                        "description": "Customer email address",
+                        "type": "string"
+                    },
+                    "phone": {
+                        "description": "Customer phone number",
+                        "type": "string"
+                    },
+                    "mobilePhone": {
+                        "description": "Customer mobile phone number",
+                        "type": "string"
+                    },
+                    "street": {
+                        "description": "Customer street address",
+                        "type": "string"
+                    },
+                    "city": {
+                        "description": "Customer city",
+                        "type": "string"
+                    },
+                    "stateProvince": {
+                        "description": "Customer state or province name",
+                        "type": "string"
+                    },
+                    "country": {
+                        "description": "Customer country",
+                        "type": "string"
+                    },
+                    "postalCode": {
+                        "description": "Customer postal code / zip",
+                        "type": "string"
+                    },
+                    "fees": {
+                        "description": "Organization charged service fee",
+                        "type": "string"
+                    },
+                    "taxes": {
+                        "description": "Organization charged taxes",
+                        "type": "string"
+                    },
+                    "donations": {
+                        "description": "Organization charged donations",
+                        "type": "string"
+                    },
+                    "grandTotal": {
+                        "description": "Total charges",
+                        "type": "string"
+                    },
+                    "coupons": {
+                        "description": "Coupons",
+                        "type": "integer"
+                    },
+                    "couponsTotal": {
+                        "description": "Coupons Total",
+                        "type": "integer"
+                    },
+                    "IPAddress": {
+                        "description": "Customer IP Address",
+                        "type": "string"
+                    },
+                    "browserName": {
+                        "description": "Customer Browser",
+                        "type": "string"
+                    },
+                    "browserDevice": {
+                        "description": "mobile | desktop",
+                        "type": "string"
+                    },
+                    "sourceCode": {
+                        "description": "Source code passed to the purchase interface s=myTrackingCode",
+                        "type": "string"
+                    },
+                    "searchTag": {
+                        "description": "Custom searchTag applied to order to bookmark it",
+                        "type": "string"
+                    },
+                    "survey": {
+                        "description": "Array of additional form question responses",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Survey"
+                        }
+                    },
+                    "_transactions": {
+                        "description": "Array of payment/refund transactions",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Transaction"
+                        }
+                    },
+                    "_tickets": {
+                        "description": "Array of tickets ordered",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Ticket"
+                        }
+                    },
+                    "_posCashierName": {
+                        "description": "Applicable to pos orders",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "PaginatedOrders": {
+                "properties": {
+                    "results": {
+                        "description": "Page of orders",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Order"
+                        }
+                    },
+                    "start": {
+                        "description": "The start index position in query results page",
+                        "type": "integer"
+                    },
+                    "limit": {
+                        "description": "The number of items per page",
+                        "type": "integer"
+                    },
+                    "limitMax": {
+                        "description": "The maximum number of items per page supported by the endpoint",
+                        "type": "integer"
+                    },
+                    "length": {
+                        "description": "The number of items on current page",
+                        "type": "integer"
+                    },
+                    "total": {
+                        "description": "The total number of items on all pages",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "Scan": {
+                "properties": {
+                    "scanId": {
+                        "description": "The scan ID",
+                        "type": "integer"
+                    },
+                    "time": {
+                        "description": "The scan time iso-8601",
+                        "type": "string"
+                    },
+                    "gate": {
+                        "description": "Gate name identifier string",
+                        "type": "string"
+                    },
+                    "uploadTime": {
+                        "description": "The scan device sync time with server iso-8601",
+                        "type": "string"
+                    },
+                    "method": {
+                        "description": "Ticket format scanned: `single` | `mobile` | `passbook`",
+                        "type": "string"
+                    },
+                    "_scanPoint": {
+                        "$ref": "#/components/schemas/ScanPoint"
+                    },
+                    "_device": {
+                        "$ref": "#/components/schemas/Device"
+                    }
+                },
+                "type": "object"
+            },
+            "ScanEvent": {
+                "properties": {
+                    "eventId": {
+                        "description": "The event ID",
+                        "type": "integer"
+                    },
+                    "scanPointId": {
+                        "description": "The Scan Point ID",
+                        "type": "integer"
+                    },
+                    "testMode": {
+                        "description": "True indicates testMode, validate testMode tickets",
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "ScanPoint": {
+                "properties": {
+                    "scanPointId": {
+                        "description": "The Scan Point ID",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "The Scan Point name",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ScanPointConfig": {
+                "properties": {
+                    "scanPointConfigId": {
+                        "description": "The Scan Point Config ID",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "The Scan Point Config name",
+                        "type": "string"
+                    },
+                    "_summary": {
+                        "description": "The Scan Point Config resrictions described",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ScanRequest": {
+                "properties": {
+                    "barcode": {
+                        "description": "The barcode string",
+                        "type": "string"
+                    },
+                    "gate": {
+                        "description": "The gate string",
+                        "type": "string"
+                    },
+                    "scanEvents": {
+                        "description": "Array of ScanEvent configurations",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ScanEvent"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ScanResponse": {
+                "properties": {
+                    "valid": {
+                        "description": "True indicates scan passed validation",
+                        "type": "boolean"
+                    },
+                    "code": {
+                        "description": "Returns code string",
+                        "type": "string"
+                    },
+                    "message": {
+                        "description": "Returns message",
+                        "type": "string"
+                    },
+                    "details": {
+                        "description": "Returns details",
+                        "type": "string"
+                    },
+                    "scanTime": {
+                        "description": "Returns current time used for the scan",
+                        "type": "string"
+                    },
+                    "method": {
+                        "description": "single, mobile, or passbook based on suffix on barcodes",
+                        "type": "string"
+                    },
+                    "barcode": {
+                        "description": "The barcode for the scan",
+                        "type": "string"
+                    },
+                    "scanPointId": {
+                        "description": "The scanPointId for the scan",
+                        "type": "string"
+                    },
+                    "testMode": {
+                        "description": "True if test mode is used",
+                        "type": "boolean"
+                    },
+                    "event": {
+                        "$ref": "#/components/schemas/Event"
+                    },
+                    "ticket": {
+                        "$ref": "#/components/schemas/Ticket"
+                    },
+                    "offlineTicket": {
+                        "$ref": "#/components/schemas/OfflineTicket"
+                    },
+                    "thirdPartyTicket": {
+                        "$ref": "#/components/schemas/ThirdPartyTicket"
+                    }
+                },
+                "type": "object"
+            },
+            "Survey": {
+                "properties": {
+                    "name": {
+                        "description": "The additional form question",
+                        "type": "string"
+                    },
+                    "value": {
+                        "description": "The additional form result",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ThirdPartyTicket": {
+                "properties": {
+                    "name": {
+                        "description": "Name of ticket",
+                        "type": "string"
+                    },
+                    "price": {
+                        "description": "Purchase price for the ticket",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Ticket": {
+                "properties": {
+                    "ticketId": {
+                        "description": "The ticket ID",
+                        "type": "integer"
+                    },
+                    "orderId": {
+                        "description": "The ticket order ID",
+                        "type": "integer"
+                    },
+                    "barcode": {
+                        "description": "The ticket barcode",
+                        "type": "string"
+                    },
+                    "canceled": {
+                        "description": "Canceled / Voided ticket",
+                        "type": "boolean"
+                    },
+                    "name": {
+                        "description": "Name of ticket",
+                        "type": "string"
+                    },
+                    "details": {
+                        "description": "Details about the ticket",
+                        "type": "string"
+                    },
+                    "price": {
+                        "description": "Purchase price for the ticket",
+                        "type": "string"
+                    },
+                    "slotDate": {
+                        "description": "Applicable to timed ticketing",
+                        "type": "string"
+                    },
+                    "slotTime": {
+                        "description": "Applicable to timed ticketing",
+                        "type": "string"
+                    },
+                    "slotAllDay": {
+                        "description": "Applicable to timed ticketing",
+                        "type": "boolean"
+                    },
+                    "nameOnTicket": {
+                        "description": "Customer name printed on ticket",
+                        "type": "string"
+                    },
+                    "seatEventTitle": {
+                        "description": "Applicable to reserved seating",
+                        "type": "string"
+                    },
+                    "seatVenueTitle": {
+                        "description": "Applicable to reserved seating",
+                        "type": "string"
+                    },
+                    "seatSection": {
+                        "description": "Applicable to reserved seating",
+                        "type": "string"
+                    },
+                    "seatCustom1": {
+                        "description": "Applicable to reserved seating",
+                        "type": "string"
+                    },
+                    "seatCustom2": {
+                        "description": "Applicable to reserved seating",
+                        "type": "string"
+                    },
+                    "seatRow": {
+                        "description": "Applicable to reserved seating",
+                        "type": "string"
+                    },
+                    "seatRowLabel": {
+                        "description": "Applicable to reserved seating",
+                        "type": "string"
+                    },
+                    "seatNumber": {
+                        "description": "Applicable to reserved seating",
+                        "type": "integer"
+                    },
+                    "seatNumberLabel": {
+                        "description": "Applicable to reserved seating",
+                        "type": "string"
+                    },
+                    "seatText": {
+                        "description": "Applicable to reserved seating",
+                        "type": "string"
+                    },
+                    "noPrint": {
+                        "description": "Indicates tickets that should not be printed",
+                        "type": "boolean"
+                    },
+                    "noBarcode": {
+                        "description": "Indicates tickets that should not be barcoded",
+                        "type": "boolean"
+                    },
+                    "discount": {
+                        "description": "Discounts applied to the ticket",
+                        "type": "string"
+                    },
+                    "fee": {
+                        "description": "Oranization charged service fee",
+                        "type": "string"
+                    },
+                    "tax": {
+                        "description": "Oranization chaarged tax",
+                        "type": "string"
+                    },
+                    "refund": {
+                        "description": "Alloted refund back to ticket (for reports)",
+                        "type": "string"
+                    },
+                    "promoCode": {
+                        "description": "Applicable to promo code discounts",
+                        "type": "string"
+                    },
+                    "promoName": {
+                        "description": "Applicable to promo code discounts",
+                        "type": "string"
+                    },
+                    "promoDescription": {
+                        "description": "Applicable to promo code discounts",
+                        "type": "string"
+                    },
+                    "_department": {
+                        "$ref": "#/components/schemas/Department"
+                    },
+                    "_scans": {
+                        "description": "Array of ticket scan activity",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Scan"
+                        }
+                    },
+                    "_scanPointConfig": {
+                        "$ref": "#/components/schemas/ScanPointConfig"
+                    }
+                },
+                "type": "object"
+            },
+            "Transaction": {
+                "properties": {
+                    "transactionId": {
+                        "description": "The transaction ID",
+                        "type": "integer"
+                    },
+                    "dateTime": {
+                        "description": "The transaction time iso-8601",
+                        "type": "string"
+                    },
+                    "isRefund": {
+                        "description": "The transaction is a refund",
+                        "type": "boolean"
+                    },
+                    "amount": {
+                        "description": "The transaction amount",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "credit | cash | other | triPos",
+                        "type": "string"
+                    },
+                    "cardTransactionId": {
+                        "description": "The payment gateway transaction identifier",
+                        "type": "string"
+                    },
+                    "cardType": {
+                        "description": "The payment credit card type code",
+                        "type": "string"
+                    },
+                    "cardLastFour": {
+                        "description": "The payment credit card last four digits",
+                        "type": "string"
+                    },
+                    "cardName": {
+                        "description": "The payment credit card customer name on card",
+                        "type": "string"
+                    },
+                    "referenceTransactionId": {
+                        "description": "Applicable to refund transaction, reference to the original `cardTransactionId`",
+                        "type": "string"
+                    },
+                    "billStreet": {
+                        "description": "Billing street address",
+                        "type": "string"
+                    },
+                    "billCity": {
+                        "description": "Billing city",
+                        "type": "string"
+                    },
+                    "billStateProvince": {
+                        "description": "Billing state or province",
+                        "type": "string"
+                    },
+                    "billPostalCode": {
+                        "description": "Billing post code / zip",
+                        "type": "string"
+                    },
+                    "billCountry": {
+                        "description": "Billing country",
+                        "type": "string"
+                    },
+                    "refundReason": {
+                        "description": "Applicable to refund transactions",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
             }
-          }
         }
-      }
-    },
-    "/events/{eventId}/orders/{orderId}" : {
-      "get" : {
-        "summary" : "Single Order",
-        "parameters" : [ {
-          "name" : "eventId",
-          "in" : "path",
-          "description" : "ID of event to return",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "name" : "orderId",
-          "in" : "path",
-          "description" : "ID of order to return",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Get single order",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Order"
-                }
-              }
-            }
-          }
-        }
-      }
     }
-  },
-  "components" : {
-    "schemas" : {
-      "Client" : {
-        "type" : "object",
-        "properties" : {
-          "clientId" : {
-            "type" : "integer",
-            "description" : "The organization ID"
-          },
-          "title" : {
-            "type" : "string",
-            "description" : "The organization name"
-          }
-        }
-      },
-      "Device" : {
-        "type" : "object",
-        "properties" : {
-          "deviceId" : {
-            "type" : "integer",
-            "description" : "The scanning device ID"
-          },
-          "lastConnectTime" : {
-            "type" : "string",
-            "description" : "The device last sync time iso-8601"
-          },
-          "ip" : {
-            "type" : "string",
-            "description" : "The device last IP address"
-          },
-          "app" : {
-            "type" : "string",
-            "description" : "The device app type"
-          },
-          "appVersion" : {
-            "type" : "string",
-            "description" : "The device app version"
-          },
-          "_displayName" : {
-            "type" : "string",
-            "description" : "The device label"
-          },
-          "_os" : {
-            "type" : "string",
-            "description" : "The device OS"
-          }
-        }
-      },
-      "Event" : {
-        "type" : "object",
-        "properties" : {
-          "eventId" : {
-            "type" : "integer",
-            "description" : "The event ID"
-          },
-          "name" : {
-            "type" : "string",
-            "description" : "The event name"
-          },
-          "status" : {
-            "type" : "string",
-            "description" : "live | offline | completed"
-          },
-          "_client" : {
-            "$ref" : "#/components/schemas/Client"
-          }
-        }
-      },
-      "Order" : {
-        "type" : "object",
-        "properties" : {
-          "orderId" : {
-            "type" : "integer",
-            "description" : "The order ID"
-          },
-          "dateTime" : {
-            "type" : "string",
-            "description" : "The order time iso-8601"
-          },
-          "testOrder" : {
-            "type" : "boolean",
-            "description" : "True indicates a test order"
-          },
-          "orderType" : {
-            "type" : "string",
-            "description" : "web | pos | kiosk"
-          },
-          "firstName" : {
-            "type" : "string",
-            "description" : "Customer first name"
-          },
-          "lastName" : {
-            "type" : "string",
-            "description" : "Customer last name"
-          },
-          "email" : {
-            "type" : "string",
-            "description" : "Customer email address"
-          },
-          "phone" : {
-            "type" : "string",
-            "description" : "Customer phone number"
-          },
-          "mobilePhone" : {
-            "type" : "string",
-            "description" : "Customer mobile phone number"
-          },
-          "street" : {
-            "type" : "string",
-            "description" : "Customer street address"
-          },
-          "city" : {
-            "type" : "string",
-            "description" : "Customer city"
-          },
-          "stateProvince" : {
-            "type" : "string",
-            "description" : "Customer state or province name"
-          },
-          "country" : {
-            "type" : "string",
-            "description" : "Customer country"
-          },
-          "postalCode" : {
-            "type" : "string",
-            "description" : "Customer postal code / zip"
-          },
-          "fees" : {
-            "type" : "string",
-            "description" : "Organization charged service fee"
-          },
-          "taxes" : {
-            "type" : "string",
-            "description" : "Organization charged taxes"
-          },
-          "donations" : {
-            "type" : "string",
-            "description" : "Organization charged donations"
-          },
-          "grandTotal" : {
-            "type" : "string",
-            "description" : "Total charges"
-          },
-          "coupons" : {
-            "type" : "integer",
-            "description" : "Coupons"
-          },
-          "couponsTotal" : {
-            "type" : "integer",
-            "description" : "Coupons Total"
-          },
-          "IPAddress" : {
-            "type" : "string",
-            "description" : "Customer IP Address"
-          },
-          "browserName" : {
-            "type" : "string",
-            "description" : "Customer Browser"
-          },
-          "browserDevice" : {
-            "type" : "string",
-            "description" : "mobile | desktop"
-          },
-          "sourceCode" : {
-            "type" : "string",
-            "description" : "Source code passed to the purchase interface s=myTrackingCode"
-          },
-          "searchTag" : {
-            "type" : "string",
-            "description" : "Custom searchTag applied to order to bookmark it"
-          },
-          "survey" : {
-            "type" : "array",
-            "description" : "Array of additional form question responses",
-            "items" : {
-              "$ref" : "#/components/schemas/Survey"
-            }
-          },
-          "_transactions" : {
-            "type" : "array",
-            "description" : "Array of payment/refund transactions",
-            "items" : {
-              "$ref" : "#/components/schemas/Transaction"
-            }
-          },
-          "_tickets" : {
-            "type" : "array",
-            "description" : "Array of tickets ordered",
-            "items" : {
-              "$ref" : "#/components/schemas/Ticket"
-            }
-          },
-          "_posCashierName" : {
-            "type" : "string",
-            "description" : "Applicable to pos orders"
-          }
-        }
-      },
-      "PaginatedOrders" : {
-        "type" : "object",
-        "properties" : {
-          "results" : {
-            "type" : "array",
-            "description" : "Page of orders",
-            "items" : {
-              "$ref" : "#/components/schemas/Order"
-            }
-          },
-          "start" : {
-            "type" : "integer",
-            "description" : "The start index position in query results page"
-          },
-          "limit" : {
-            "type" : "integer",
-            "description" : "The number of items per page"
-          },
-          "limitMax" : {
-            "type" : "integer",
-            "description" : "The maximum number of items per page supported by the endpoint"
-          },
-          "length" : {
-            "type" : "integer",
-            "description" : "The number of items on current page"
-          },
-          "total" : {
-            "type" : "integer",
-            "description" : "The total number of items on all pages"
-          }
-        }
-      },
-      "Scan" : {
-        "type" : "object",
-        "properties" : {
-          "scanId" : {
-            "type" : "integer",
-            "description" : "The scan ID"
-          },
-          "time" : {
-            "type" : "string",
-            "description" : "The scan time iso-8601"
-          },
-          "gate" : {
-            "type" : "string",
-            "description" : "Gate name identifier string"
-          },
-          "uploadTime" : {
-            "type" : "string",
-            "description" : "The scan device sync time with server iso-8601"
-          },
-          "method" : {
-            "type" : "string",
-            "description" : "Ticket format scanned: `single` | `mobile` | `passbook`"
-          },
-          "_scanPoint" : {
-            "$ref" : "#/components/schemas/ScanPoint"
-          },
-          "_device" : {
-            "$ref" : "#/components/schemas/Device"
-          }
-        }
-      },
-      "ScanPoint" : {
-        "type" : "object",
-        "properties" : {
-          "scanPointId" : {
-            "type" : "integer",
-            "description" : "The Scan Point ID"
-          },
-          "name" : {
-            "type" : "string",
-            "description" : "The Scan Point name"
-          }
-        }
-      },
-      "ScanPointConfig" : {
-        "type" : "object",
-        "properties" : {
-          "scanPointConfigId" : {
-            "type" : "integer",
-            "description" : "The Scan Point Config ID"
-          },
-          "name" : {
-            "type" : "string",
-            "description" : "The Scan Point Config name"
-          },
-          "_summary" : {
-            "type" : "array",
-            "description" : "The Scan Point Config resrictions described",
-            "items" : {
-              "type" : "string"
-            }
-          }
-        }
-      },
-      "Survey" : {
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string",
-            "description" : "The additional form question"
-          },
-          "value" : {
-            "type" : "string",
-            "description" : "The additional form result"
-          }
-        }
-      },
-      "Ticket" : {
-        "type" : "object",
-        "properties" : {
-          "ticketId" : {
-            "type" : "integer",
-            "description" : "The ticket ID"
-          },
-          "barcode" : {
-            "type" : "string",
-            "description" : "The ticket barcode"
-          },
-          "canceled" : {
-            "type" : "boolean",
-            "description" : "Canceled / Voided ticket"
-          },
-          "name" : {
-            "type" : "string",
-            "description" : "Name of ticket"
-          },
-          "details" : {
-            "type" : "string",
-            "description" : "Details about the ticket"
-          },
-          "price" : {
-            "type" : "string",
-            "description" : "Purchase price for the ticket"
-          },
-          "slotDate" : {
-            "type" : "string",
-            "description" : "Applicable to timed ticketing"
-          },
-          "slotTime" : {
-            "type" : "string",
-            "description" : "Applicable to timed ticketing"
-          },
-          "slotAllDay" : {
-            "type" : "boolean",
-            "description" : "Applicable to timed ticketing"
-          },
-          "nameOnTicket" : {
-            "type" : "string",
-            "description" : "Customer name printed on ticket"
-          },
-          "seatEventTitle" : {
-            "type" : "string",
-            "description" : "Applicable to reserved seating"
-          },
-          "seatVenueTitle" : {
-            "type" : "string",
-            "description" : "Applicable to reserved seating"
-          },
-          "seatSection" : {
-            "type" : "string",
-            "description" : "Applicable to reserved seating"
-          },
-          "seatCustom1" : {
-            "type" : "string",
-            "description" : "Applicable to reserved seating"
-          },
-          "seatCustom2" : {
-            "type" : "string",
-            "description" : "Applicable to reserved seating"
-          },
-          "seatRow" : {
-            "type" : "string",
-            "description" : "Applicable to reserved seating"
-          },
-          "seatRowLabel" : {
-            "type" : "string",
-            "description" : "Applicable to reserved seating"
-          },
-          "seatNumber" : {
-            "type" : "integer",
-            "description" : "Applicable to reserved seating"
-          },
-          "seatNumberLabel" : {
-            "type" : "string",
-            "description" : "Applicable to reserved seating"
-          },
-          "seatText" : {
-            "type" : "string",
-            "description" : "Applicable to reserved seating"
-          },
-          "noPrint" : {
-            "type" : "boolean",
-            "description" : "Indicates tickets that should not be printed"
-          },
-          "noBarcode" : {
-            "type" : "boolean",
-            "description" : "Indicates tickets that should not be barcoded"
-          },
-          "discount" : {
-            "type" : "string",
-            "description" : "Discounts applied to the ticket"
-          },
-          "fee" : {
-            "type" : "string",
-            "description" : "Oranization charged service fee"
-          },
-          "tax" : {
-            "type" : "string",
-            "description" : "Oranization chaarged tax"
-          },
-          "refund" : {
-            "type" : "string",
-            "description" : "Alloted refund back to ticket (for reports)"
-          },
-          "promoCode" : {
-            "type" : "string",
-            "description" : "Applicable to promo code discounts"
-          },
-          "promoName" : {
-            "type" : "string",
-            "description" : "Applicable to promo code discounts"
-          },
-          "promoDescription" : {
-            "type" : "string",
-            "description" : "Applicable to promo code discounts"
-          },
-          "_scans" : {
-            "type" : "array",
-            "description" : "Array of ticket scan activity",
-            "items" : {
-              "$ref" : "#/components/schemas/Scan"
-            }
-          },
-          "_scanPointConfig" : {
-            "$ref" : "#/components/schemas/ScanPointConfig"
-          }
-        }
-      },
-      "Transaction" : {
-        "type" : "object",
-        "properties" : {
-          "transactionId" : {
-            "type" : "integer",
-            "description" : "The transaction ID"
-          },
-          "dateTime" : {
-            "type" : "string",
-            "description" : "The transaction time iso-8601"
-          },
-          "isRefund" : {
-            "type" : "boolean",
-            "description" : "The transaction is a refund"
-          },
-          "amount" : {
-            "type" : "string",
-            "description" : "The transaction amount"
-          },
-          "type" : {
-            "type" : "string",
-            "description" : "credit | cash | other | triPos"
-          },
-          "cardTransactionId" : {
-            "type" : "string",
-            "description" : "The payment gateway transaction identifier"
-          },
-          "cardType" : {
-            "type" : "string",
-            "description" : "The payment credit card type code"
-          },
-          "cardLastFour" : {
-            "type" : "string",
-            "description" : "The payment credit card last four digits"
-          },
-          "cardName" : {
-            "type" : "string",
-            "description" : "The payment credit card customer name on card"
-          },
-          "referenceTransactionId" : {
-            "type" : "string",
-            "description" : "Applicable to refund transaction, reference to the original `cardTransactionId`"
-          },
-          "billStreet" : {
-            "type" : "string",
-            "description" : "Billing street address"
-          },
-          "billCity" : {
-            "type" : "string",
-            "description" : "Billing city"
-          },
-          "billStateProvince" : {
-            "type" : "string",
-            "description" : "Billing state or province"
-          },
-          "billPostalCode" : {
-            "type" : "string",
-            "description" : "Billing post code / zip"
-          },
-          "billCountry" : {
-            "type" : "string",
-            "description" : "Billing country"
-          },
-          "refundReason" : {
-            "type" : "string",
-            "description" : "Applicable to refund transactions"
-          }
-        }
-      }
-    }
-  }
 }
