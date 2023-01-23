@@ -6,7 +6,7 @@
     "apiPackage": "Api",
     "invokerPackage": "InteractiveTicketing",
     "groupId": "com.interactiveticketing",
-    "artifactVersion": "1.0.0",
+    "artifactVersion": "4.0.0",
     "artifactId": "interactiveticketing-java",
     "hideGenerationTimestamp": true
 }

@@ -2,18 +2,83 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Developer API",
-        "description": "Get your API Key from the [Dashboard](/dashboard/).<br/>Send all API requests with http header `X-API-Key: YOUR-API-KEY-HERE`.<br/>Base URL: `https://secure.interactiveticketing.com/developers/api/v2`<br/>Contact support@interactiveticketing.com for help.",
-        "version": "v2",
+        "description": "Get your API Key from the [Dashboard](/dashboard/).<br/>Send all API requests with http header `X-API-Key: YOUR-API-KEY-HERE`.<br/>Base URL: `https://secure.interactiveticketing.com/developers/api/v4`<br/>Contact support@interactiveticketing.com for help.",
+        "version": "v4",
         "x-logo": {
-            "url": "/developers/api/v2/logo.svg"
+            "url": "/developers/api/v4/logo.svg"
         }
     },
     "servers": [
         {
-            "url": "https://secure.interactiveticketing.com/developers/api/v2"
+            "url": "https://secure.interactiveticketing.com/developers/api/v4"
         }
     ],
     "paths": {
+        "/events/{eventId}/abandonedShoppingCarts": {
+            "get": {
+                "summary": "Query Abandoned Shopping Cart Data",
+                "description": "Returns paginated list of cart data from the event. The `cartEmailId` is not unique across all events. Use `fromCartEmailId` parameter to loop through orders if you are pulling down all data.",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "description": "ID of event to return",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "fromCartEmailId",
+                        "in": "query",
+                        "description": "Return entries with `cartEmailId` greater than `fromCartEmailId`.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "Return entries with matching email address.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "description": "For pagination, return orders from `start` row index.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "For pagination, limit results to `limit` number of rows.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get a paginated result of orders",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedCartEmails"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/events": {
             "get": {
                 "summary": "List All Events",
@@ -179,6 +244,45 @@
                 }
             }
         },
+        "/events/{eventId}/orders/barcode/{barcode}": {
+            "get": {
+                "summary": "Fetch Order by Barcode",
+                "description": "Get single order with `eventId` and `barcode`.",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "description": "ID of event to return",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "barcode",
+                        "in": "path",
+                        "description": "Barcode from ticket of the order to return",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get single order",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Order"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/scan": {
             "post": {
                 "summary": "Scan Ticket",
@@ -212,6 +316,27 @@
     },
     "components": {
         "schemas": {
+            "CartEmail": {
+                "properties": {
+                    "cartEmailId": {
+                        "description": "The ID",
+                        "type": "integer"
+                    },
+                    "createdAt": {
+                        "description": "The time user submitted their email address",
+                        "type": "string"
+                    },
+                    "email": {
+                        "description": "Customer email address",
+                        "type": "string"
+                    },
+                    "cartData": {
+                        "description": "Raw Cart Data collected",
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
             "Client": {
                 "properties": {
                     "clientId": {
@@ -499,6 +624,53 @@
                     "_posCashierName": {
                         "description": "Applicable to pos orders",
                         "type": "string"
+                    },
+                    "_suspectFlags": {
+                        "description": "Array of reasons the order is flagged as suspicious",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SuspectFlag"
+                        }
+                    },
+                    "_isSuspicious": {
+                        "description": "True indicates if order is flagged as suspicious",
+                        "type": "boolean"
+                    },
+                    "_suspiciousResolved": {
+                        "description": "True indicates if a suspicous order was approved in the dashboard",
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "PaginatedCartEmails": {
+                "properties": {
+                    "results": {
+                        "description": "Page of cartEmails",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CartEmail"
+                        }
+                    },
+                    "start": {
+                        "description": "The start index position in query results page",
+                        "type": "integer"
+                    },
+                    "limit": {
+                        "description": "The number of items per page",
+                        "type": "integer"
+                    },
+                    "limitMax": {
+                        "description": "The maximum number of items per page supported by the endpoint",
+                        "type": "integer"
+                    },
+                    "length": {
+                        "description": "The number of items on current page",
+                        "type": "integer"
+                    },
+                    "total": {
+                        "description": "The total number of items on all pages",
+                        "type": "integer"
                     }
                 },
                 "type": "object"
@@ -626,6 +798,10 @@
                         "description": "The gate string",
                         "type": "string"
                     },
+                    "rejectIfSuspicious": {
+                        "description": "Set to true and orders flagged as \"suspicious\" will not be validated",
+                        "type": "boolean"
+                    },
                     "scanEvents": {
                         "description": "Array of ScanEvent configurations",
                         "type": "array",
@@ -697,6 +873,35 @@
                     },
                     "value": {
                         "description": "The additional form result",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "SuspectFlag": {
+                "properties": {
+                    "suspectFlagId": {
+                        "description": "The flag ID",
+                        "type": "integer"
+                    },
+                    "orderId": {
+                        "description": "The order ID",
+                        "type": "integer"
+                    },
+                    "suspectFilterId": {
+                        "description": "The the suspicious filter ID",
+                        "type": "integer"
+                    },
+                    "resolved": {
+                        "description": "True indicates if a suspicous order was approved in the dashboard",
+                        "type": "boolean"
+                    },
+                    "notes": {
+                        "description": "The optional notes",
+                        "type": "string"
+                    },
+                    "_reason": {
+                        "description": "A message describing the reason order is flagged as suspicious",
                         "type": "string"
                     }
                 },
